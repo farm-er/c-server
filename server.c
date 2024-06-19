@@ -12,6 +12,7 @@ int main (int argc, char* argv) {
     const char jsonString[] = 
         "{\n"
         "  \"name\": \"John Doe\",\n"
+        "  \"The Shawshank Redemption\": \"The Shawshank Redemption\",\n"
         "  \"age\": 30,\n"
         "  \"isStudent\": 0,\n"  // 0 for false (assuming integer representation for boolean)
         "  \"grades\": [85, 92, 78, 88],\n"
@@ -24,7 +25,7 @@ int main (int argc, char* argv) {
         "  \"movies\": [\"The Shawshank Redemption\", \"The Godfather\"],\n"
         "  \"colors\": [\"blue\", \"green\", \"red\"]\n"
         "}";
-    char *check = "{\"key\": [\"arrayValue1\", \"arrayValue2\"]}";
+    const char *check = "{\"The Shawshank Redemption\": \"The Shawshank Redemption\"}";
     Pair *content = DecodeJSON(jsonString, NULL, NULL);
     Pair *temp = content;
     int i = 1;

@@ -47,7 +47,7 @@ Array *parseArray (const char **JSONString, Array *start, Array *end) {
                 return NULL;
             }
             size_t len = jsonString - stringStart;
-            newNode->value->string  = (char *)malloc(len * sizeof(char));
+            newNode->value->string  = (char *)malloc(len+1);
             newNode->value->Type = STRING;// type of the value
             newNode->value->string = strncpy(newNode->value->string, stringStart, len); // value
             jsonString++;// pass "
@@ -136,7 +136,8 @@ Pair *DecodeJSON (const char *jsonString, Pair *start, Pair *end) {
             return NULL;
         }
         size_t lenKey = jsonString - keyStart;
-        newPair->key = (char *)malloc(lenKey);
+        printf("Key length: %ld\n", lenKey);
+        newPair->key = (char *)malloc(lenKey+1);
         newPair->key = strncpy(newPair->key, keyStart, lenKey);// got the key here
         jsonString++;// pass the "
         // between key and value
@@ -158,7 +159,8 @@ Pair *DecodeJSON (const char *jsonString, Pair *start, Pair *end) {
                 return NULL;
             }
             size_t len = jsonString - stringStart;
-            newPair->value.string  = (char *)malloc(len);
+            printf("value length: %ld\n", len);
+            newPair->value.string  = (char *)malloc(len+1);
             newPair->value.Type = STRING;// type of the value
             newPair->value.string = strncpy(newPair->value.string, stringStart, len); // value
             jsonString++;// pass "
