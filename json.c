@@ -1,3 +1,19 @@
+/*  
+    Copyright (C) 2024  Oussama MAJDOULI
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -183,8 +199,7 @@ Pair *DecodeJSON (const char **JSONString, Pair *start, Pair *end) {
             newPair->value.Type = ARRAY;
             newPair->value.array = parseArray(&jsonString, NULL, NULL);// when finishing the jsonString will be after ] so we can check for , or } after removing junks
             break;
-        case 'n':
-            // this is a null value
+        case 'n':// this is a null value
             char *empty = "null";
             if (strncmp(jsonString, empty, 5) != 0) {
                 fprintf(stderr, "Invalid json format expected null\n");
@@ -212,8 +227,7 @@ Pair *DecodeJSON (const char **JSONString, Pair *start, Pair *end) {
             jsonString = jsonString +5;// pass "false"
             break;
         default:
-            // check if it's a number or an unwanted character
-            if ('0'<=(*jsonString) && (*jsonString)<='9') {
+            if ('0'<=(*jsonString) && (*jsonString)<='9') {// check if it's a number or an unwanted character
                 // parse  NUMBER
                 const char *numberStart = jsonString;
                 while ((*jsonString >= '0' && *jsonString <= '9') || *jsonString == '.') jsonString++;
@@ -250,8 +264,6 @@ Pair *DecodeJSON (const char **JSONString, Pair *start, Pair *end) {
         fprintf(stderr, "Invalid json format expected ( }, ,) but found: %c\n", *jsonString);
         return NULL;
 }
-
-
 char *EncodeString (const char* key,const char* value) {
     size_t lenKey = strlen(key);
     size_t lenValue = strlen(value);
@@ -261,14 +273,11 @@ char *EncodeString (const char* key,const char* value) {
         fprintf(stderr, "memory allocation failed");
         return NULL;
     }
-
     int res = snprintf(JSONString, total, "\"%s\":\"%s\"", key, value);
-
     if (res < 0) {
         fprintf(stderr, "Error occured when creating JSON string: snprintf");
         return NULL;
     }
-
     return JSONString;
 }
 
