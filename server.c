@@ -12,7 +12,6 @@ int main (int argc, char* argv) {
     const char jsonString[] = 
         "{\n"
         "  \"name\": \"John Doe\",\n"
-        "  \"The Shawshank Redemption\": \"The Shawshank Redemption\",\n"
         "  \"age\": 30,\n"
         "  \"isStudent\": 0,\n"  // 0 for false (assuming integer representation for boolean)
         "  \"grades\": [85, 92, 78, 88],\n"
@@ -25,8 +24,8 @@ int main (int argc, char* argv) {
         "  \"movies\": [\"The Shawshank Redemption\", \"The Godfather\"],\n"
         "  \"colors\": [\"blue\", \"green\", \"red\"]\n"
         "}";
-    const char *check = "{\"The Shawshank Redemption\": \"The Shawshank Redemption\"}";
-    Pair *content = DecodeJSON(jsonString, NULL, NULL);
+    const char *check = "{\"The Shawshank Redemption\": [{\"key\": \"value\"}, {\"key\": \"value\"}, {\"key\": \"value\"}]}";
+    Pair *content = DecodeJSON(&check, NULL, NULL);
     Pair *temp = content;
     int i = 1;
     while (temp != NULL){
@@ -50,11 +49,52 @@ int main (int argc, char* argv) {
                         break;  
                         case null:printf("\n  %d) %s\n", n, "null");   
                         break;
+                        case OBJECT:printf("Object: {%s: %s}", temp1->value->object->key, temp1->value->object->value.string);
                         default:break;
                     }
                     temp1 = temp1->next;n++;
                 }
                 printf("]\n");
+                break;
+            case OBJECT:
+                printf("\n%d)- key: %s\n", i, temp->key);
+                Pair *temp2 = content->value.object;
+                int l=0;
+                while (temp2 != NULL) {
+                    switch (temp2->value.Type){
+                        case STRING:printf("\n%d)- key: %s,value: %s\n", l,temp2->key, temp2->value.string);
+                            break;
+                        case NUMBER:printf("\n%d)- key: %s,value: %s\n", l,temp2->key, temp2->value.number);
+                            break;  
+                        case null:printf("\n%d)- key: %s,value: %s\n", l, temp2->key, "null");   
+                            break;
+                        case ARRAY:
+                            printf("\n%d)- key: %s\n", l, temp2->key);
+                            Array *temp1 = temp->value.array;\
+                            printf("values:[");
+                            int n= 1;
+                            while (temp1 != NULL){
+                                switch (temp1->value->Type){
+                                    case STRING:printf("\n  %d- %s\n", n,temp1->value->string);
+                                    break;
+                                    case NUMBER:printf("\n  %d) %s\n", n,temp1->value->number);
+                                    break;  
+                                    case null:printf("\n  %d) %s\n", n, "null");   
+                                    break;
+                                    default:break;
+                                }
+                                temp1 = temp1->next;n++;
+                            }
+                            printf("]\n");
+                            break;
+                        case OBJECT:
+                            printf("\n%d)- key: %s\n", l, temp2->key);
+                            break;
+                        default:break;
+                    }
+                    temp2 = temp2->next;
+                }
+                break;
             default:break;
         }
         temp = temp->next;i++;

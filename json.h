@@ -33,7 +33,7 @@ typedef struct Array {
 }Array;
 
 char *EncodeString (const char* key,const char* value);
-Pair *DecodeJSON (const char *jsonString, Pair *start, Pair *end);
+Pair *DecodeJSON (const char **JSONString, Pair *start, Pair *end);
 Array *parseArray (char **jsonString, Array *start, Array *end);
 
 
