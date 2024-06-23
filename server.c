@@ -18,7 +18,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "json.h"
+#include "json/json.h"  
 
 
 
@@ -39,81 +39,14 @@ int main (int argc, char* argv) {
         "  \"movies\": [\"The Shawshank Redemption\", \"The Godfather\"],\n"
         "  \"colors\": [\"blue\", \"green\", \"red\"]\n"
         "}";
-    const char *check = "{\"The Shawshank Redemption\": [{\"key\": \"value\"}, {\"key\": \"value\"}, {\"key\": \"value\"}]}";
+    const char *check = "{\"The Shawshank Redemption\": \"value\"}";
     Pair *content = DecodeJSON(&check, NULL, NULL);
-    Pair *temp = content;
-    int i = 1;
-    while (temp != NULL){
-        switch (temp->value.Type){
-            case STRING:printf("\n%d)- key: %s,value: %s\n", i,temp->key, temp->value.string);
-                break;
-            case NUMBER:printf("\n%d)- key: %s,value: %s\n", i,temp->key, temp->value.number);
-                break;  
-            case null:printf("\n%d)- key: %s,value: %s\n", i, temp->key, "null");   
-                break;
-            case ARRAY:
-                printf("\n%d)- key: %s\n", i, temp->key);
-                Array *temp1 = temp->value.array;\
-                printf("values:[");
-                int n= 1;
-                while (temp1 != NULL){
-                    switch (temp1->value->Type){
-                        case STRING:printf("\n  %d- %s\n", n,temp1->value->string);
-                        break;
-                        case NUMBER:printf("\n  %d) %s\n", n,temp1->value->number);
-                        break;  
-                        case null:printf("\n  %d) %s\n", n, "null");   
-                        break;
-                        case OBJECT:printf("Object: {%s: %s}", temp1->value->object->key, temp1->value->object->value.string);
-                        default:break;
-                    }
-                    temp1 = temp1->next;n++;
-                }
-                printf("]\n");
-                break;
-            case OBJECT:
-                printf("\n%d)- key: %s\n", i, temp->key);
-                Pair *temp2 = content->value.object;
-                int l=0;
-                while (temp2 != NULL) {
-                    switch (temp2->value.Type){
-                        case STRING:printf("\n%d)- key: %s,value: %s\n", l,temp2->key, temp2->value.string);
-                            break;
-                        case NUMBER:printf("\n%d)- key: %s,value: %s\n", l,temp2->key, temp2->value.number);
-                            break;  
-                        case null:printf("\n%d)- key: %s,value: %s\n", l, temp2->key, "null");   
-                            break;
-                        case ARRAY:
-                            printf("\n%d)- key: %s\n", l, temp2->key);
-                            Array *temp1 = temp->value.array;\
-                            printf("values:[");
-                            int n= 1;
-                            while (temp1 != NULL){
-                                switch (temp1->value->Type){
-                                    case STRING:printf("\n  %d- %s\n", n,temp1->value->string);
-                                    break;
-                                    case NUMBER:printf("\n  %d) %s\n", n,temp1->value->number);
-                                    break;  
-                                    case null:printf("\n  %d) %s\n", n, "null");   
-                                    break;
-                                    default:break;
-                                }
-                                temp1 = temp1->next;n++;
-                            }
-                            printf("]\n");
-                            break;
-                        case OBJECT:
-                            printf("\n%d)- key: %s\n", l, temp2->key);
-                            break;
-                        default:break;
-                    }
-                    temp2 = temp2->next;
-                }
-                break;
-            default:break;
-        }
-        temp = temp->next;i++;
-    }
+    printf("%s, %s\n", content->key, content->value.string);
+    
+    char *encodedJson = EncodeString(content);
+
+    printf("%s\n", encodedJson);
+
     return 0;
 }
 

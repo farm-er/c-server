@@ -51,7 +51,6 @@ typedef struct Array {
 
 Pair *DecodeJSON (const char **JSONString, Pair *start, Pair *end);
 
-
 Array *parseArray (const char **JSONString, Array *start, Array *end) {
     const char *jsonString = *JSONString;
     Array *newNode = (Array *)malloc(sizeof(Array));// add it after to the array
@@ -264,20 +263,3 @@ Pair *DecodeJSON (const char **JSONString, Pair *start, Pair *end) {
         fprintf(stderr, "Invalid json format expected ( }, ,) but found: %c\n", *jsonString);
         return NULL;
 }
-char *EncodeString (const char* key,const char* value) {
-    size_t lenKey = strlen(key);
-    size_t lenValue = strlen(value);
-    size_t total = lenKey + lenValue + 6;
-    char *JSONString = (char *)malloc(total * sizeof(char));
-    if (JSONString == NULL) {
-        fprintf(stderr, "memory allocation failed");
-        return NULL;
-    }
-    int res = snprintf(JSONString, total, "\"%s\":\"%s\"", key, value);
-    if (res < 0) {
-        fprintf(stderr, "Error occured when creating JSON string: snprintf");
-        return NULL;
-    }
-    return JSONString;
-}
-

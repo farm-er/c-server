@@ -19,6 +19,7 @@ This program started as a way to discover how servers work to building a framwor
 
 ## installation
 
+Project not finished
 
 ## usage
 

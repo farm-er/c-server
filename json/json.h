@@ -26,6 +26,8 @@
 #define NUMBER 2
 #define ARRAY 3
 #define OBJECT 4
+#define True 5
+#define False 6
 
 typedef struct Value {
     int Type;
@@ -46,9 +48,8 @@ typedef struct Array {
     struct Array *next;
 }Array;
 
-char *EncodeString (const char* key,const char* value);
+char *EncodeString (Pair *firstPair);
 Pair *DecodeJSON (const char **JSONString, Pair *start, Pair *end);
-Array *parseArray (char **jsonString, Array *start, Array *end);
 
 
 
