@@ -39,13 +39,13 @@ int main (int argc, char* argv) {
         "  \"movies\": [\"The Shawshank Redemption\", \"The Godfather\"],\n"
         "  \"colors\": [\"blue\", \"green\", \"red\"]\n"
         "}";
-    const char *check = "{\"The Shawshank Redemption\": \"value\"}";
+    const char *check = "{\"The Shawshank Redemption\": \"value\",\"The Shawshank Redemption\": \"value\"}";
     Pair *content = DecodeJSON(&check, NULL, NULL);
     printf("%s, %s\n", content->key, content->value.string);
     
     char *encodedJson = EncodeString(content);
 
-    printf("%s\n", encodedJson);
+    printf("%s", encodedJson);
 
     return 0;
 }
