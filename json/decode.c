@@ -33,7 +33,6 @@
 typedef struct Value {
     int Type;
     char *string;
-    char *number;
     struct Pair *object;
     struct Array *array;
 }Value;
@@ -62,7 +61,7 @@ Array *parseArray (const char **JSONString, Array *start, Array *end) {
             const char *stringStart = jsonString;
             while (*jsonString != '\"' && *jsonString != '\0') jsonString++;
             if (*jsonString == '\0') {
-                fprintf(stderr, "Invalid json format: early EOF");
+                fprintf(stderr, "parseArray: Invalid json format: early EOF");
                 return NULL;
             }
             size_t len = jsonString - stringStart;
@@ -88,11 +87,32 @@ Array *parseArray (const char **JSONString, Array *start, Array *end) {
             // this is a null value
             char *empty = "null";
             if (strncmp(jsonString, empty, 4) != 0) {
-                fprintf(stderr, "Invalid json format expected null\n");
+                fprintf(stderr, "parseArray: Invalid json format expected null\n");
                 return NULL;
             }
             newNode->value->Type = null;
+            newNode->value->string = empty;
             jsonString = jsonString +4;// pass "null"
+            break;
+        case 't':
+            char *trueValue = "true";
+            if (strncmp(jsonString, empty, 5) != 0) {
+                fprintf(stderr, "parseArray: Invalid json format expected null\n");
+                return NULL;
+            }
+            newNode->value->Type = True;
+            newNode->value->string = trueValue;
+            jsonString = jsonString +4;// pass "true"
+            break;
+        case 'f':
+            char *falseValue = "false";
+            if (strncmp(jsonString, falseValue, 6) != 0) {
+                fprintf(stderr, "parseArray: Invalid json format expected null\n");
+                return NULL;
+            }
+            newNode->value->Type = False;
+            newNode->value->string = falseValue;
+            jsonString = jsonString +5;// pass "false"
             break;
         default:
             if ('0'<=(*jsonString) && (*jsonString)<='9') {
@@ -101,10 +121,10 @@ Array *parseArray (const char **JSONString, Array *start, Array *end) {
                 while ((*jsonString >= '0' && *jsonString <= '9') || *jsonString == '.') jsonString++;
                 size_t len = jsonString - numberStart;
                 newNode->value->Type = NUMBER;
-                newNode->value->number = (char *)malloc(len);
-                newNode->value->number = strncpy(newNode->value->number, numberStart, len);
+                newNode->value->string = (char *)malloc(len);
+                newNode->value->string = strncpy(newNode->value->string, numberStart, len);
             }else {
-                fprintf(stderr, "Invalid json format expected ( {, [, null, \", (0, 1, 2 ... ,9)) but found: %c\n", *jsonString);
+                fprintf(stderr, "parseArray: Invalid json format expected ( {, [, null, \", (0, 1, 2 ... ,9)) but found: %c\n", *jsonString);
                 return NULL;  
             }
             break;
@@ -129,7 +149,7 @@ Array *parseArray (const char **JSONString, Array *start, Array *end) {
                 return parseArray(JSONString, start, newNode);
             }
         }
-        fprintf(stderr, "Invalid json format expected ( ], ,) but found: %c\n", *jsonString);
+        fprintf(stderr, "parseArray: Invalid json format expected ( ], ,) but found: %c\n", *jsonString);
         return NULL;
 }
 
@@ -139,22 +159,22 @@ Pair *DecodeJSON (const char **JSONString, Pair *start, Pair *end) {
     if (start == NULL) {
         while (*jsonString == '\n' || *jsonString == '\t' || *jsonString == '\r' || *jsonString == ' ') jsonString ++;// excluding any leading junks
         if (*jsonString != '{') {
-            fprintf(stderr, "Invalid json format expected { and found %c\n", *jsonString);
+            fprintf(stderr, "DecodeJSON: Invalid json format expected { and found %c\n", *jsonString);
             return NULL;
         }
         jsonString++;
     }
-        while (*jsonString == '\n' || *jsonString == '\t' || *jsonString == '\r' || *jsonString == ' ') jsonString ++;
+    while (*jsonString == '\n' || *jsonString == '\t' || *jsonString == '\r' || *jsonString == ' ') jsonString ++;
         // the key is always a string so we parse it and take the string
         if (*jsonString != '\"'){
-            fprintf(stderr, "Invalid json format found: %c\n", *jsonString);
+            fprintf(stderr, "DecodeJSON: Invalid json format found: %c\n", *jsonString);
             return NULL;
         }
         jsonString++;// pass the "
         const char *keyStart = jsonString;
         while (*jsonString != '\"' && *jsonString != '\0') jsonString++;
         if (*jsonString == '\0') {
-            fprintf(stderr, "Invalid json format: early EOF\n");
+            fprintf(stderr, "DecodeJSON: Invalid json format: early EOF\n");
             return NULL;
         }
         size_t lenKey = jsonString - keyStart;
@@ -163,82 +183,84 @@ Pair *DecodeJSON (const char **JSONString, Pair *start, Pair *end) {
         jsonString++;// pass the "
         // between key and value
         if (*jsonString != ':'){
-            fprintf(stderr, "Invalid json format: expecting ':' found %c\n", *jsonString);
+            fprintf(stderr, "DecodeJSON: Invalid json format: expecting ':' found %c\n", *jsonString);
             return NULL;
         }
         // pass :
         jsonString++;
         while (*jsonString == ' ') jsonString ++;   
-        switch (*jsonString)
-        {
-        case '\"':
-            jsonString++;
-            const char *stringStart = jsonString;
-            while (*jsonString != '\"' && *jsonString != '\0') jsonString++;
-            if (*jsonString == '\0') {
-                fprintf(stderr, "Invalid json format: early EOF");
-                return NULL;
-            }
-            size_t len = jsonString - stringStart;
-            newPair->value.string  = (char *)malloc(len+1);
-            newPair->value.Type = STRING;// type of the value
-            newPair->value.string = strncpy(newPair->value.string, stringStart, len); // value
-            jsonString++;// pass "
-            while (*jsonString == ' ') jsonString ++;// pass white spaces
-            break;
-        case '{':
-            // parse another JSON object
-            newPair->value.Type = OBJECT;
-            newPair->value.object = DecodeJSON(&jsonString, NULL, NULL);
-            break;
-        case '[':
-            // parse the array
-            // [] can have any type
-            jsonString++;// pass the [
-            newPair->value.Type = ARRAY;
-            newPair->value.array = parseArray(&jsonString, NULL, NULL);// when finishing the jsonString will be after ] so we can check for , or } after removing junks
-            break;
-        case 'n':// this is a null value
-            char *empty = "null";
-            if (strncmp(jsonString, empty, 5) != 0) {
-                fprintf(stderr, "Invalid json format expected null\n");
-                return NULL;
-            }
-            newPair->value.Type = null;
-            jsonString = jsonString +4;// pass "null"
-            break;
-        case 't':
-        char *trueValue = "true";
-            if (strncmp(jsonString, empty, 5) != 0) {
-                fprintf(stderr, "Invalid json format expected null\n");
-                return NULL;
-            }
-            newPair->value.Type = True;
-            jsonString = jsonString +4;// pass "true"
-            break;
-        case 'f':
-            char *falseValue = "false";
-            if (strncmp(jsonString, falseValue, 6) != 0) {
-                fprintf(stderr, "Invalid json format expected null\n");
-                return NULL;
-            }
-            newPair->value.Type = False;
-            jsonString = jsonString +5;// pass "false"
-            break;
-        default:
-            if ('0'<=(*jsonString) && (*jsonString)<='9') {// check if it's a number or an unwanted character
-                // parse  NUMBER
-                const char *numberStart = jsonString;
-                while ((*jsonString >= '0' && *jsonString <= '9') || *jsonString == '.') jsonString++;
-                size_t len = jsonString - numberStart;
-                newPair->value.Type = NUMBER;
-                newPair->value.number = (char *)malloc(len);
-                newPair->value.number = strncpy(newPair->value.number, numberStart, len);
-            }else {
-                fprintf(stderr, "Invalid json format expected ( {, [, null, \", (0, 1, 2 ... ,9)) but found: %c\n", *jsonString);
-                return NULL;  
-            }
-            break;
+        switch (*jsonString){
+            case '\"':
+                jsonString++;
+                const char *stringStart = jsonString;
+                while (*jsonString != '\"' && *jsonString != '\0') jsonString++;
+                if (*jsonString == '\0') {
+                    fprintf(stderr, "DecodeJSON: Invalid json format: early EOF");
+                    return NULL;
+                }
+                size_t len = jsonString - stringStart;
+                newPair->value.string  = (char *)malloc(len+1);
+                newPair->value.Type = STRING;// type of the value
+                newPair->value.string = strncpy(newPair->value.string, stringStart, len); // value
+                jsonString++;// pass "
+                while (*jsonString == ' ') jsonString ++;// pass white spaces
+                break;
+            case '{':
+                // parse another JSON object
+                newPair->value.Type = OBJECT;
+                newPair->value.object = DecodeJSON(&jsonString, NULL, NULL);
+                break;
+            case '[':
+                // parse the array
+                // [] can have any type
+                jsonString++;// pass the [
+                newPair->value.Type = ARRAY;
+                newPair->value.array = parseArray(&jsonString, NULL, NULL);// when finishing the jsonString will be after ] so we can check for , or } after removing junks
+                break;
+            case 'n':// this is a null value
+                char *empty = "null";
+                if (strncmp(jsonString, empty, 4) != 0) {
+                    fprintf(stderr, "DecodeJSON: Invalid json format expected null\n");
+                    return NULL;
+                }
+                newPair->value.Type = null;
+                newPair->value.string = empty;
+                jsonString = jsonString +4;// pass "null"
+                break;
+            case 't':
+            char *trueValue = "true";
+                if (strncmp(jsonString, trueValue, 4) != 0) {
+                    fprintf(stderr, "DecodeJSON: Invalid json format expected true\n");
+                    return NULL;
+                }
+                newPair->value.Type = True;
+                newPair->value.string = trueValue;
+                jsonString = jsonString +4;// pass "true"
+                break;
+            case 'f':
+                char *falseValue = "false";
+                if (strncmp(jsonString, falseValue, 5) != 0) {
+                    fprintf(stderr, "DecodeJSON: Invalid json format expected false\n");
+                    return NULL;
+                }
+                newPair->value.Type = False;
+                newPair->value.string = falseValue;
+                jsonString = jsonString +5;// pass "false"
+                break;
+            default:
+                if ('0'<=(*jsonString) && (*jsonString)<='9') {// check if it's a number or an unwanted character
+                    // parse  NUMBER
+                    const char *numberStart = jsonString;
+                    while ((*jsonString >= '0' && *jsonString <= '9') || *jsonString == '.') jsonString++;
+                    size_t len = jsonString - numberStart;
+                    newPair->value.Type = NUMBER;
+                    newPair->value.string = (char *)malloc(len);
+                    newPair->value.string = strncpy(newPair->value.string, numberStart, len);
+                }else {
+                    fprintf(stderr, "DecodeJSON: Invalid json format expected ( {, [, null, \", (0, 1, 2 ... ,9)) but found: %c\n", *jsonString);
+                    return NULL;  
+                }
+                break;
         }
         while (*jsonString == '\n' || *jsonString == '\t' || *jsonString == '\r' || *jsonString == ' ') jsonString ++;
         newPair->next = NULL;
@@ -260,6 +282,6 @@ Pair *DecodeJSON (const char **JSONString, Pair *start, Pair *end) {
                 return DecodeJSON(&jsonString, start, newPair);
             }
         }
-        fprintf(stderr, "Invalid json format expected ( }, ,) but found: %c\n", *jsonString);
+        fprintf(stderr, "DecodeJSON: Invalid json format expected ( }, ,) but found: %c\n", *jsonString);
         return NULL;
 }

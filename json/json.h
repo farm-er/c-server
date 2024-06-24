@@ -32,7 +32,6 @@
 typedef struct Value {
     int Type;
     char *string;
-    char *number;
     struct Pair *object;
     struct Array *array;
 }Value;

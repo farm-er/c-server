@@ -24,7 +24,7 @@
 
 int main (int argc, char* argv) {
     // char *check = "{\"key1\":\"value1\",\t\n \"key2\":\"value2\",\t\n \"key3\": 12.3,\t\n \"key3\": null\t\n}";
-    const char jsonString[] = 
+    const char *jsonString = 
         "{\n"
         "  \"name\": \"John Doe\",\n"
         "  \"age\": 30,\n"
@@ -39,9 +39,8 @@ int main (int argc, char* argv) {
         "  \"movies\": [\"The Shawshank Redemption\", \"The Godfather\"],\n"
         "  \"colors\": [\"blue\", \"green\", \"red\"]\n"
         "}";
-    const char *check = "{\"The Shawshank Redemption\": \"value\",\"The Shawshank Redemption\": \"value\"}";
+    const char *check = "{\"The Shawshank Redemption\": \"value\",\"The Shawshank Redemption\": \"value\", \"key_num\": true, \"key_num\": false}";
     Pair *content = DecodeJSON(&check, NULL, NULL);
-    printf("%s, %s\n", content->key, content->value.string);
     
     char *encodedJson = EncodeString(content);
 
