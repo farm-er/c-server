@@ -39,7 +39,7 @@ int main (int argc, char* argv) {
         "  \"movies\": [\"The Shawshank Redemption\", \"The Godfather\"],\n"
         "  \"colors\": [\"blue\", \"green\", \"red\"]\n"
         "}";
-    const char *check = "{\"The Shawshank Redemption\": \"value\",\"The Shawshank Redemption\": \"value\", \"key_num\": true, \"key_num\": false}";
+    const char *check = "{\"The Shawshank Redemption\": \"value\", \"The Shawshank Redemption\": 1.66, \"true_value\": true, \"false_value\": false, \"null_value\": null}";
     Pair *content = DecodeJSON(&check, NULL, NULL);
     
     char *encodedJson = EncodeString(content);

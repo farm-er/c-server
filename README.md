@@ -23,6 +23,17 @@ Project not finished
 
 ## usage
 
+- [Json manipulation](#json)
+
+### json
+``` 
+    In this library we introduce our local json Object used to pass json object accross the program and It's structure is:
+```
+Main structure:
+```
+    Pair(key + value + next) ---> ... ---> Pair(key + value + next) ---> NULL
+    This make the object dynamic and easy to use by going from node to node until NULL
+```
 
 ## contributing
 

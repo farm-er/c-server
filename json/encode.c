@@ -33,7 +33,7 @@ char *EncodeString (Pair *firstPair) {
     Pair *temp = firstPair;
     char *res;
     char *jsonString = (char *)malloc(3);
-    jsonString = strncpy(jsonString, "{\n", 3);
+    strncpy(jsonString, "{\n", 2);
     size_t total;
     size_t keyLen;
     size_t strLen;
@@ -41,29 +41,34 @@ char *EncodeString (Pair *firstPair) {
     while (temp != NULL) {
         switch (temp->value.Type) { 
             case STRING:
-                keyLen = strlen(temp->key);
-                strLen = strlen(temp->value.string);
-                total = keyLen + strLen + 8;
-                jsonString = (char *)realloc(jsonString, strlen(jsonString) + total);
-                holder = (char *)malloc(strlen(jsonString));
-                holder = strncpy(holder, jsonString, strlen(jsonString)+1);
+            keyLen = strlen(temp->key); // key
+                strLen = strlen(temp->value.string); // value
+                total = keyLen + strLen + 8; // key and value and space for " ":" " + \n} or ,\n and null terminator
+                jsonString = (char *)realloc(jsonString, strlen(jsonString) + total);// reaclloc space for the string and the new element to add
+                strncat(jsonString, "\"", 2);
+                strncat(jsonString, temp->key, keyLen);
+                strncat(jsonString, "\": \"", 5);
+                strncat(jsonString, temp->value.string, strLen);
+                strncat(jsonString, "\"", 2);
                 if (temp->next == NULL) {
-                    snprintf(jsonString, strlen(jsonString) + total + 2, "%s\"%s\":\"%s\"\n}", holder, temp->key, temp->value.string);
+                    strncat(jsonString, "\n}", 3);
                 }else {
-                    snprintf(jsonString, strlen(jsonString) + total + 2, "%s\"%s\":\"%s\",\n", holder,temp->key, temp->value.string);
+                    strncat(jsonString, ",\n", 3);  
                 }
-            break;
+                break;
             case NUMBER:
-                keyLen = strlen(temp->key);
-                strLen = strlen(temp->value.string);
-                total = keyLen + strLen + 8;
-                jsonString = (char *)realloc(jsonString, strlen(jsonString) + total);
-                holder = (char *)malloc(strlen(jsonString));
-                holder = strncpy(holder, jsonString, strlen(jsonString)+1);
+                keyLen = strlen(temp->key); // key
+                strLen = strlen(temp->value.string); // value
+                total = keyLen + strLen + 8; // key and value and space for " ":" " + \n} or ,\n and null terminator
+                jsonString = (char *)realloc(jsonString, strlen(jsonString) + total);// reaclloc space for the string and the new element to add
+                strncat(jsonString, "\"", 2);
+                strncat(jsonString, temp->key, keyLen);
+                strncat(jsonString, "\": ", 4);
+                strncat(jsonString, temp->value.string, strLen);
                 if (temp->next == NULL) {
-                    snprintf(jsonString, strlen(jsonString) + total + 2, "%s\"%s\":\"%s\"\n}", holder, temp->key, temp->value.string);
+                    strncat(jsonString, "\n}", 3);
                 }else {
-                    snprintf(jsonString, strlen(jsonString) + total + 2, "%s\"%s\":\"%s\",\n", holder,temp->key, temp->value.string);
+                    strncat(jsonString, ",\n", 3);  
                 }
             break;
             case OBJECT:break;
@@ -71,30 +76,42 @@ char *EncodeString (Pair *firstPair) {
             case True:
                 keyLen = strlen(temp->key);
                 total = keyLen + 10;
-                printf("total: %lu\n", total);
-                printf("%lu\n", strlen(jsonString));
-                printf("jsonString: %s\n", jsonString);
+                jsonString = (char *)realloc(jsonString, strlen(jsonString) + total);// reaclloc space for the string and the new element to add
+                strncat(jsonString, "\"", 2);
+                strncat(jsonString, temp->key, keyLen);
+                strncat(jsonString, "\": true", 8);
                 if (temp->next == NULL) {
-                    snprintf(jsonString, strlen(jsonString) + total + 2, "%s\"%s\": true\n}", holder, temp->key);
+                    strncat(jsonString, "\n}", 3);
                 }else {
-                    snprintf(jsonString, strlen(jsonString) + total + 2, "%s\"%s\": true,\n", holder,temp->key);
+                    strncat(jsonString, ",\n", 3);  
                 }
-                printf("%lu\n", strlen(jsonString));
             break;
             case False:
                 keyLen = strlen(temp->key);
                 total = keyLen + 11;
-                printf("total: %lu\n", total);
-                printf("%lu\n", strlen(jsonString));
-                printf("jsonString: %s\n", jsonString);
+                jsonString = (char *)realloc(jsonString, strlen(jsonString) + total);// reaclloc space for the string and the new element to add
+                strncat(jsonString, "\"", 2);
+                strncat(jsonString, temp->key, keyLen);
+                strncat(jsonString, "\": false", 9);
                 if (temp->next == NULL) {
-                    snprintf(jsonString, strlen(jsonString) + total + 2, "%s\"%s\": false\n}", holder, temp->key);
+                    strncat(jsonString, "\n}", 3);
                 }else {
-                    snprintf(jsonString, strlen(jsonString) + total + 2, "%s\"%s\": false,\n", holder,temp->key);
+                    strncat(jsonString, ",\n", 3);  
                 }
-                printf("%lu\n", strlen(jsonString));
             break;
-            case null:break;
+            case null:
+                 keyLen = strlen(temp->key);
+                total = keyLen + 10;
+                jsonString = (char *)realloc(jsonString, strlen(jsonString) + total);// reaclloc space for the string and the new element to add
+                strncat(jsonString, "\"", 2);
+                strncat(jsonString, temp->key, keyLen);
+                strncat(jsonString, "\": null", 8);
+                if (temp->next == NULL) {
+                    strncat(jsonString, "\n}", 3);
+                }else {
+                    strncat(jsonString, ",\n", 3);  
+                }
+            break;
             default:break;
         }
         temp = temp->next;
