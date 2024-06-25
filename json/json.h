@@ -47,7 +47,7 @@ typedef struct Array {
     struct Array *next;
 }Array;
 
-char *EncodeString (Pair *firstPair);
+char *EncodeJsonObject (Pair *firstPair);
 Pair *DecodeJSON (const char **JSONString, Pair *start, Pair *end);
 
 

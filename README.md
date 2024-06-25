@@ -2,12 +2,15 @@
 
 
 ## Table of Contents
-- [Introduction](#introduction)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Contributing](#contributing)
-- [License](#license)
-- [Goals](#goals)
+- [Project FastC](#project-fastc)
+  - [Table of Contents](#table-of-contents)
+  - [introduction](#introduction)
+  - [installation](#installation)
+  - [usage](#usage)
+    - [json](#json)
+  - [contributing](#contributing)
+  - [goals](#goals)
+  - [license](#license)
 
 
 
@@ -26,15 +29,24 @@ Project not finished
 - [Json manipulation](#json)
 
 ### json
-``` 
-    In this library we introduce our local json Object used to pass json object accross the program and It's structure is:
-```
-Main structure:
+- In this library we use a custom local json Object.  
+  Main structure:
 ```
     Pair(key + value + next) ---> ... ---> Pair(key + value + next) ---> NULL
-    This make the object dynamic and easy to use by going from node to node until NULL
 ```
-
+- Where each pair represents a row in a json object "key": "value", this makes the object dynamic and easy to use by going from node to node until NULL.  
+- The key is just a string and always a string.
+Now every pair has a value and a value can be any supported json type.
+```
+    Value |--> type
+          |
+          |--> string
+          |
+          |--> object (nested json object) 
+          |
+          |--> array
+```
+By doing this we store the type and the value (the actual value from json object).
 ## contributing
 
 ## goals

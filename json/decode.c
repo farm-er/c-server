@@ -207,8 +207,10 @@ Pair *DecodeJSON (const char **JSONString, Pair *start, Pair *end) {
                 break;
             case '{':
                 // parse another JSON object
+                printf("started\n");
                 newPair->value.Type = OBJECT;
                 newPair->value.object = DecodeJSON(&jsonString, NULL, NULL);
+                printf("finished");
                 break;
             case '[':
                 // parse the array
@@ -263,7 +265,7 @@ Pair *DecodeJSON (const char **JSONString, Pair *start, Pair *end) {
                 break;
         }
         while (*jsonString == '\n' || *jsonString == '\t' || *jsonString == '\r' || *jsonString == ' ') jsonString ++;
-        newPair->next = NULL;
+        newPair->next = NULL;// marking the end of the object
         *JSONString = jsonString+1;
         if (*jsonString == '}'){
             jsonString++;// pass }
@@ -276,10 +278,10 @@ Pair *DecodeJSON (const char **JSONString, Pair *start, Pair *end) {
         }else if (*jsonString == ',') {
             jsonString++;// pass ,
             if (start == NULL) {
-                return DecodeJSON(&jsonString, newPair, newPair);
+                return DecodeJSON(JSONString, newPair, newPair);
             }else {
                 end->next = newPair;
-                return DecodeJSON(&jsonString, start, newPair);
+                return DecodeJSON(JSONString, start, newPair);
             }
         }
         fprintf(stderr, "DecodeJSON: Invalid json format expected ( }, ,) but found: %c\n", *jsonString);

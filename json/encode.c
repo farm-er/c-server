@@ -29,7 +29,11 @@
 //  ....
 //  \"key\": \"value\"\n
 //}
-char *EncodeString (Pair *firstPair) {
+char *EncodeJsonObject (Pair *firstPair) {
+    if (firstPair == NULL) {
+        fprintf(stderr, "EncodeJsonObject: empty json object\n");
+        return "";
+    }
     Pair *temp = firstPair;
     char *res;
     char *jsonString = (char *)malloc(3);
@@ -46,9 +50,9 @@ char *EncodeString (Pair *firstPair) {
                 total = keyLen + strLen + 8; // key and value and space for " ":" " + \n} or ,\n and null terminator
                 jsonString = (char *)realloc(jsonString, strlen(jsonString) + total);// reaclloc space for the string and the new element to add
                 strncat(jsonString, "\"", 2);
-                strncat(jsonString, temp->key, keyLen);
+                strncat(jsonString, temp->key, keyLen+1);
                 strncat(jsonString, "\": \"", 5);
-                strncat(jsonString, temp->value.string, strLen);
+                strncat(jsonString, temp->value.string, strLen+1);
                 strncat(jsonString, "\"", 2);
                 if (temp->next == NULL) {
                     strncat(jsonString, "\n}", 3);
@@ -64,14 +68,29 @@ char *EncodeString (Pair *firstPair) {
                 strncat(jsonString, "\"", 2);
                 strncat(jsonString, temp->key, keyLen);
                 strncat(jsonString, "\": ", 4);
-                strncat(jsonString, temp->value.string, strLen);
+                strncat(jsonString, temp->value.string, strLen+1);
                 if (temp->next == NULL) {
                     strncat(jsonString, "\n}", 3);
                 }else {
                     strncat(jsonString, ",\n", 3);  
                 }
             break;
-            case OBJECT:break;
+            case OBJECT:
+                keyLen = strlen(temp->key);
+                char *nestedObj =  EncodeJsonObject(temp->value.object);
+                strLen = strlen(nestedObj);
+                total = keyLen + strLen + 7;
+                jsonString = (char *)realloc(jsonString, strlen(jsonString) + total);// reaclloc space for the string and the new element to add
+                strncat(jsonString, "\"", 2);
+                strncat(jsonString, temp->key, keyLen);
+                strncat(jsonString, "\": ", 4);
+                strncat(jsonString, nestedObj, strLen+1);
+                if (temp->next == NULL) {
+                    strncat(jsonString, "\n}", 3);
+                }else {
+                    strncat(jsonString, ",\n", 3);  
+                }
+            break;
             case ARRAY:break;
             case True:
                 keyLen = strlen(temp->key);
