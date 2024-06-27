@@ -21,6 +21,70 @@
 #include "json.h"
 
 
+char *EncodeArray(Array *firstValue) {
+    Array *temp = firstValue;
+    if (temp == NULL) {
+        return "[]";
+    }
+    size_t total;
+    char *JsonString = (char *)malloc(3);
+    strncpy(JsonString, "[\n", 2);
+    while (temp != NULL) {
+        switch (temp->value->Type)
+        {
+        case STRING:
+            total = strlen(temp->value->string) + 6;
+            JsonString = (char *)realloc(JsonString, strlen(JsonString) + total);
+            strncat(JsonString, "\"", 2);
+            printf("jsonString: %ld\n", strlen(JsonString));
+            printf("%s\n", JsonString);
+            printf("total: %ld\n", total);
+            strncat(JsonString, temp->value->string, total-6);
+            printf("jsonString: %ld\n", strlen(JsonString));
+            printf("%s\n", JsonString);
+            if (temp->next == NULL){
+                strncat(JsonString, "\"\n]", 4);
+            }else {
+                strncat(JsonString, "\",\n", 4);
+            }
+            break;
+        case NUMBER:
+            total = strlen(temp->value->string) + 3;
+            JsonString = (char *)realloc(JsonString, strlen(JsonString) + total);
+            strncat(JsonString, temp->value->string, total - 3);
+            if (temp->next == NULL){
+                strncat(JsonString, "\n]", 3);
+            }else {
+                strncat(JsonString, ",\n", 3);
+            }
+            break;
+        case OBJECT:
+                char *nestedObj =  EncodeJsonObject(temp->value->object);
+                size_t strLen = strlen(nestedObj);
+                total = strLen + 3;
+                JsonString = (char *)realloc(JsonString, strlen(JsonString) + total);
+                strncat(JsonString, nestedObj, strLen);
+                if (temp->next == NULL) {
+                    strncat(JsonString, "\n]", 3);
+                }else {
+                    strncat(JsonString, ",\n", 3);  
+                }
+            break;
+        case ARRAY:
+            break;
+        case True:
+            break;
+        case False:
+            break;
+        case null:
+            break;
+        default:
+            break;
+        }
+        temp = temp->next;
+    }
+
+}
 
 // the format we follow
 //{\n
@@ -35,7 +99,6 @@ char *EncodeJsonObject (Pair *firstPair) {
         return "";
     }
     Pair *temp = firstPair;
-    char *res;
     char *jsonString = (char *)malloc(3);
     strncpy(jsonString, "{\n", 2);
     size_t total;
@@ -91,10 +154,27 @@ char *EncodeJsonObject (Pair *firstPair) {
                     strncat(jsonString, ",\n", 3);  
                 }
             break;
-            case ARRAY:break;
+            case ARRAY:
+
+                keyLen = strlen(temp->key);
+                const char *arrayString = EncodeArray(temp->value.array);
+                strLen = strlen(arrayString);
+                total = keyLen + strLen + 7;
+                jsonString = (char *)realloc(jsonString, strlen(jsonString) + total);// reaclloc space for the string and the new element to add
+                strncat(jsonString, "\"", 2);
+                strncat(jsonString, temp->key, keyLen);
+                strncat(jsonString, "\": ", 4);
+                strncat(jsonString, arrayString, strLen+1);
+                if (temp->next == NULL) {
+                    strncat(jsonString, "\n]", 3);
+                }else {
+                    strncat(jsonString, ",\n", 3);  
+                }
+                /* ARRAY Encoding function: seperate function for encoding arrays */
+            break;
             case True:
                 keyLen = strlen(temp->key);
-                total = keyLen + 10;
+                total = keyLen + 11;
                 jsonString = (char *)realloc(jsonString, strlen(jsonString) + total);// reaclloc space for the string and the new element to add
                 strncat(jsonString, "\"", 2);
                 strncat(jsonString, temp->key, keyLen);
@@ -107,7 +187,7 @@ char *EncodeJsonObject (Pair *firstPair) {
             break;
             case False:
                 keyLen = strlen(temp->key);
-                total = keyLen + 11;
+                total = keyLen + 12;
                 jsonString = (char *)realloc(jsonString, strlen(jsonString) + total);// reaclloc space for the string and the new element to add
                 strncat(jsonString, "\"", 2);
                 strncat(jsonString, temp->key, keyLen);

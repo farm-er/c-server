@@ -21,8 +21,8 @@
 #include "json/json.h"  
 
 
-
 int main (int argc, char* argv) {
+
     // char *check = "{\"key1\":\"value1\",\t\n \"key2\":\"value2\",\t\n \"key3\": 12.3,\t\n \"key3\": null\t\n}";
     const char *jsonString = 
         "{\n"
@@ -39,7 +39,7 @@ int main (int argc, char* argv) {
         "  \"movies\": [\"The Shawshank Redemption\", \"The Godfather\"],\n"
         "  \"colors\": [\"blue\", \"green\", \"red\"]\n"
         "}";
-    const char *check = "{\"The Shawshank Redemption\": {\"key_1\": \"value_1\", \"key_2\": \"value_2\", \"key_2\": \"value_2\"}, \"key_2\": \"value_2\"}";
+    const char *check = "{\"The Shawshank Redemption\": {\"key_1\": \"value_1\", \"key_2\": \"value_2\", \"key_2\": \"value_2\"}, \"key_2\": \"value_2\", \"array_key\": [\"oussama\", \"rayane\"]}";
     Pair *content = DecodeJSON(&check, NULL, NULL);
     
     char *encodedJson = EncodeJsonObject(content);

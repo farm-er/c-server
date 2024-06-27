@@ -207,10 +207,8 @@ Pair *DecodeJSON (const char **JSONString, Pair *start, Pair *end) {
                 break;
             case '{':
                 // parse another JSON object
-                printf("started\n");
                 newPair->value.Type = OBJECT;
                 newPair->value.object = DecodeJSON(&jsonString, NULL, NULL);
-                printf("finished");
                 break;
             case '[':
                 // parse the array
